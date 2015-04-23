@@ -13,9 +13,7 @@ type Conn struct {
 	Ws      *websocket.Conn
 	Send    chan []byte
 	Dst     BottleDst
-
-	// Private
-	quit    chan bool
+	Quit chan []byte
 }
 
 
@@ -109,9 +107,9 @@ func (c *Conn) read_write() {
 				return
 			}
 
-		case <- c.quit:
-			// Quit signal was invoked by our Close function
-			// The bottle destination wants this connection closed
+		case bytes := <- c.Quit:
+			// Close connection and send a final message
+			c.write(websocket.TextMessage, bytes)
 			c.write(websocket.CloseMessage, []byte{})
 			return
 		}
@@ -121,8 +119,8 @@ func (c *Conn) read_write() {
 
 // This function chews through the power cables
 func (c *Conn) Close() {
-	// Send ourself the quit signal provided by a function
-	c.quit <- true
+	// Send ourself the quit signal with no message
+	c.Quit <- []byte("")
 }
 
 var upgrader = &websocket.Upgrader{ReadBufferSize: 1024, WriteBufferSize: 1024, CheckOrigin: func(r* http.Request) bool { return true }}
@@ -139,7 +137,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request, dst BottleDst) {
 		Send: make(chan []byte, 256),
 		Ws: ws,
 		Dst: dst,
-		quit: make(chan bool),
+		Quit: make(chan []byte),
 	}
 
 	// Alert the destination that a new connection has opened
