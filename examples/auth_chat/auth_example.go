@@ -47,8 +47,8 @@ func (r *Router) ConnectionOpened(c *rhynock.Conn) {
 
 	// Welcome them
 	c.SendMsg("Welcome to authchat we hope you enjoy your stay")
-	c.SendMsg("#################################################")
 	c.SendMsg("Please login below")
+	c.SendMsg("#################################################")
 
 	// Send them a login prompt
 	c.SendMsg("Enter your username")
