@@ -24,7 +24,8 @@ type Conn struct {
 	Ws      *websocket.Conn
 	Send    chan []byte
 	Dst     BottleDst
-	Quit chan []byte
+	Quit    chan []byte
+	wait    chan bool
 }
 
 
@@ -170,6 +171,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request, dst BottleDst) {
 		Ws: ws,
 		Dst: dst,
 		Quit: make(chan []byte),
+		wait: make(chan bool),
 	}
 
 	// Start read/write loop
