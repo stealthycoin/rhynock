@@ -46,7 +46,7 @@ func (r *Router) ConnectionOpened(c *rhynock.Conn) {
 	r.connections[c] = &Profile{}
 
 	// Send them a login prompt
-	c.Send <- []byte("Enter your username")
+	c.Send("Enter your username")
 }
 
 // Function to manage login process
@@ -61,7 +61,7 @@ func (r *Router) login(b *rhynock.Bottle) {
 		profile.name = string(b.Message)
 
 		// Now tell them to enter their password
-		b.Sender.Send <- []byte("Enter password")
+		b.Sender.Send("Enter password")
 	} else {
 
 		// Their name is set so this is their password
@@ -75,14 +75,14 @@ func (r *Router) login(b *rhynock.Bottle) {
 				profile.authed = true
 
 				// Alert them they are logged in
-				b.Sender.Send <- []byte("Logged in as " + profile.name)
+				b.Sender.Send("Logged in as " + profile.name)
 			} else {
 				// They typed the password wrong
-				b.Sender.Quit <- []byte("Invalid password.")
+				b.Sender.CloseMsg("Invalid password.")
 			}
 		} else {
 			// The name wasn't in the list so they fail
-			b.Sender.Quit <- []byte("Invalid username.")
+			b.Sender.CloseMsg("Invalid username.")
 		}
 	}
 }
