@@ -128,6 +128,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request, dst BottleDst) {
 		Dst: dst,
 	}
 
+	dst.ConnectionOpened(c)
 
 	// Start infinite read/write loop
 	c.read_write()
