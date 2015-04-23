@@ -119,6 +119,7 @@ func (c *Conn) read_write() {
 
 }
 
+// This function chews through the power cables
 func (c *Conn) Close() {
 	// Send ourself the quit signal provided by a function
 	c.quit <- true
@@ -141,6 +142,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request, dst BottleDst) {
 		quit: make(chan bool),
 	}
 
+	// Alert the destination that a new connection has opened
 	dst.ConnectionOpened(c)
 
 	// Start infinite read/write loop
