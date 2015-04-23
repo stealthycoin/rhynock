@@ -110,8 +110,8 @@ func (c *Conn) read_write() {
 			// Send to the destination for processing
 			c.Dst.GetBottleChan() <- bottle
 		}
-		// The reader has been terminated
-
+		// The reader has been terminated, alert the writer
+		c.Close()
 	}()
 
 	// Main writing loop
@@ -147,7 +147,6 @@ func (c *Conn) read_write() {
 			return
 		}
 	}
-
 }
 
 
@@ -175,6 +174,6 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request, dst BottleDst) {
 	// Alert the destination that a new connection has opened
 	dst.ConnectionOpened(c)
 
-	// Start infinite read/write loop
+	// Start read/write loop
 	c.read_write()
 }
