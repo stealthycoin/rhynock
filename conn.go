@@ -93,7 +93,7 @@ func (c *Conn) read_write() {
 	// have to close the reader
 	go func() {
 		for {
-			// This blcoks until it reads EOF or an error
+			// This blocks until it reads EOF or an error
 			// occurs trying to read, the error can be
 			// used to detect when the client closes the Connection
 			_, message, err := c.Ws.ReadMessage()
