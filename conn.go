@@ -78,6 +78,7 @@ func (c *Conn) read_write() {
 		close(c.Send)
 		close(c.Quit)
 		c.Ws.Close()
+		close(c.wait) // Unblocks the ConnectionHandler
 	}()
 
 	// Config websocket settings
@@ -175,7 +176,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request, dst BottleDst) {
 	}
 
 	// Start read/write loop
-	c.read_write()
+	go c.read_write()
 
 	// Alert the destination that a new connection has opened
 	dst.ConnectionOpened(c)
@@ -184,4 +185,6 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request, dst BottleDst) {
 	defer func() {
 		dst.ConnectionClosed(c)
 	}()
+
+	<- c.Wait
 }
