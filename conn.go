@@ -7,6 +7,7 @@ import (
 	"log"
 )
 
+
 // Some defaults for pinging
 // Needs to be settable from outside
 const (
@@ -15,6 +16,7 @@ const (
 	pingPeriod = (pongWait * 9) / 10
 	maxMessageSize = 512
 )
+
 
 // Conn encapsulates our websocket
 type Conn struct {
@@ -25,6 +27,7 @@ type Conn struct {
 	Quit chan []byte
 }
 
+
 //
 // Convenience function so you dont have to use the Send channel
 //
@@ -33,12 +36,23 @@ func (c *Conn) SendMsg(message string) {
 	c.Send <- []byte(message)
 }
 
+
 //
 // Convenience function to call the quit channel with a message
 //
 func (c *Conn) CloseMsg(message string) {
 	c.Quit <- []byte(message)
 }
+
+
+//
+// This function chews through the power cables
+//
+func (c *Conn) Close() {
+	// Send ourself the quit signal with no message
+	c.Quit <- []byte("")
+}
+
 
 //
 // Used to write a single message to the client and report any errors
@@ -47,6 +61,7 @@ func (c *Conn) write(t int, payload []byte) error {
 	c.Ws.SetWriteDeadline(time.Now().Add(writeWait))
 	return c.Ws.WriteMessage(t, payload)
 }
+
 
 //
 // Maintains both a reader and a writer, cleans up both if one fails
@@ -135,15 +150,9 @@ func (c *Conn) read_write() {
 
 }
 
-//
-// This function chews through the power cables
-//
-func (c *Conn) Close() {
-	// Send ourself the quit signal with no message
-	c.Quit <- []byte("")
-}
 
 var upgrader = &websocket.Upgrader{ReadBufferSize: 1024, WriteBufferSize: 1024, CheckOrigin: func(r* http.Request) bool { return true }}
+
 
 //
 // Hanlder function to start a websocket connection
