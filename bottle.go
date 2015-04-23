@@ -12,4 +12,5 @@ type Bottle struct {
 type BottleDst interface {
 	GetBottleChan() (chan *Bottle)
 	ConnectionClosed(*Connection)
+	ConnectionOpened(*Connection)
 }
