@@ -58,6 +58,8 @@ func (c *Conn) read_write() {
 	// Clean up Connection and Connection resources
 	defer func() {
 		ticker.Stop()
+		close(c.Send)
+		close(c.Quit)
 		c.Ws.Close()
 	}()
 
@@ -97,7 +99,7 @@ func (c *Conn) read_write() {
 
 	}()
 
-	// Main handling loop
+	// Main writing loop
 	for {
 		select {
 		case message, ok := <- c.Send:
