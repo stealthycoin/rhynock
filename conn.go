@@ -175,9 +175,6 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request, dst BottleDst) {
 		wait: make(chan bool),
 	}
 
-	// Start read/write loop
-	go c.read_write()
-
 	// Alert the destination that a new connection has opened
 	dst.ConnectionOpened(c)
 
@@ -186,5 +183,6 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request, dst BottleDst) {
 		dst.ConnectionClosed(c)
 	}()
 
-	<- c.wait
+	// Start read write loop blocking
+	c.read_write()
 }
