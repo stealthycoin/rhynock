@@ -7,8 +7,8 @@ import (
 	"log"
 )
 
-// Connection handles our websocket
-type Connection struct {
+// Conn handles our websocket
+type Conn struct {
 	// Exported
 	Ws      *websocket.Conn
 	Send    chan []byte
@@ -29,7 +29,7 @@ const (
 //
 // Used to write a single message to the client and report any errors
 //
-func (c *Connection) write(t int, payload []byte) error {
+func (c *Conn) write(t int, payload []byte) error {
 	c.Ws.SetWriteDeadline(time.Now().Add(writeWait))
 	return c.Ws.WriteMessage(t, payload)
 }
@@ -37,7 +37,7 @@ func (c *Connection) write(t int, payload []byte) error {
 //
 // Maintains both a reader and a writer, cleans up both if one fails
 //
-func (c *Connection) read_write() {
+func (c *Conn) read_write() {
 	// Ping timer
 	ticker := time.NewTicker(pingPeriod)
 
@@ -89,7 +89,7 @@ func (c *Connection) read_write() {
 		case message, ok := <- c.Send:
 			// Our send channel has something in it or the channel closed
 			if !ok {
-				// Our channel was closed, gracefully close socket Connection
+				// Our channel was closed, gracefully close socket Conn
 				c.write(websocket.CloseMessage, []byte{})
 				return
 			}
@@ -119,7 +119,7 @@ func (c *Connection) read_write() {
 
 }
 
-func (c *Connection) Close() {
+func (c *Conn) Close() {
 	// Send ourself the quit signal provided by a function
 	c.quit <- true
 }
@@ -134,7 +134,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request, dst BottleDst) {
 	}
 
 	// Create new connection object
-	c := &Connection{
+	c := &Conn{
 		Send: make(chan []byte, 256),
 		Ws: ws,
 		Dst: dst,

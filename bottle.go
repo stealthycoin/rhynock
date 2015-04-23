@@ -2,7 +2,7 @@ package rhynock
 
 // A type to hold a message and the sender of that message
 type Bottle struct {
-	Sender *Connection
+	Sender *Conn
 	Message []byte
 }
 
@@ -11,6 +11,6 @@ type Bottle struct {
 // And can be told when a connection has been closed
 type BottleDst interface {
 	GetBottleChan() (chan *Bottle)
-	ConnectionClosed(*Connection)
-	ConnectionOpened(*Connection)
+	ConnectionClosed(*Conn)
+	ConnectionOpened(*Conn)
 }
