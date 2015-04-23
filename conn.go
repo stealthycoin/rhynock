@@ -35,8 +35,6 @@ func (c *Connection) write(t int, payload []byte) error {
 // Maintains both a reader and a writer, cleans up both if one fails
 //
 func (c *Connection) read_write() {
-	log.Println("Read/write loop starting")
-
 	// Ping timer
 	ticker := time.NewTicker(pingPeriod)
 
@@ -44,7 +42,6 @@ func (c *Connection) read_write() {
 	defer func() {
 		ticker.Stop()
 		c.Ws.Close()
-		log.Println("Read/write loop terminating")
 	}()
 
 	// Config websocket settings
