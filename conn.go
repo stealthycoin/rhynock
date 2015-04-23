@@ -172,6 +172,9 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request, dst BottleDst) {
 		Quit: make(chan []byte),
 	}
 
+	// Start read/write loop
+	c.read_write()
+
 	// Alert the destination that a new connection has opened
 	dst.ConnectionOpened(c)
 
@@ -179,7 +182,4 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request, dst BottleDst) {
 	defer func() {
 		dst.ConnectionClosed(c)
 	}()
-
-	// Start read/write loop
-	c.read_write()
 }
