@@ -59,7 +59,6 @@ func (c *Conn) Close() {
 // Used to write a single message to the client and report any errors
 //
 func (c *Conn) write(t int, payload []byte) error {
-	log.Println("Writing ", payload)
 	c.Ws.SetWriteDeadline(time.Now().Add(writeWait))
 	return c.Ws.WriteMessage(t, payload)
 }
