@@ -45,6 +45,11 @@ func (r *Router) ConnectionOpened(c *rhynock.Conn) {
 	// Create an empty profile for them
 	r.connections[c] = &Profile{}
 
+	// Welcome them
+	c.SendMsg("Welcome to authchat we hope you enjoy your stay")
+	c.SendMsg("#################################################")
+	c.SendMsg("Please login below")
+
 	// Send them a login prompt
 	c.SendMsg("Enter your username")
 }
