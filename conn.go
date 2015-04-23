@@ -36,7 +36,7 @@ func (c *Conn) Send(message string) {
 //
 // Convenience function to call the quit channel with a message
 //
-func (c *Conn) Quit(message string) {
+func (c *Conn) CloseMsg(message string) {
 	c.Quit <- []byte(message)
 }
 
