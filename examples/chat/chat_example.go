@@ -7,7 +7,7 @@ import (
 
 type Router struct {
 	// Kind of sorta keep track of who is connected
-	connections map[*rhynock.Connection]bool
+	connections map[*rhynock.Conn]bool
 
 	// Channel to recieve bottles through
 	bottle     chan *rhynock.Bottle
@@ -20,12 +20,12 @@ func (r *Router) GetBottleChan() (chan *rhynock.Bottle) {
 }
 
 // Satisfy the BottleDst interface
-func (r *Router) ConnectionClosed(c *rhynock.Connection) {
+func (r *Router) ConnectionClosed(c *rhynock.Conn) {
 	delete(r.connections, c)
 }
 
 // Satisfy the BottleDst interface
-func (r *Router) ConnectionOpened(c *rhynock.Connection) {
+func (r *Router) ConnectionOpened(c *rhynock.Conn) {
 	// This should put the connection into an authenticating mode
 	// and then upon authentication the connection is added to a map
 	// where the value points at some kind of profile object
@@ -35,7 +35,7 @@ func (r *Router) ConnectionOpened(c *rhynock.Connection) {
 
 func main() {
 	router := &Router{
-		connections: make(map[*rhynock.Connection]bool),
+		connections: make(map[*rhynock.Conn]bool),
 		bottle: make(chan *rhynock.Bottle),
 	}
 
