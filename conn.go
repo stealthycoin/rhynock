@@ -18,13 +18,27 @@ const (
 
 // Conn encapsulates our websocket
 type Conn struct {
-	// Exported
+	// Exported so everything can be messed with from outside
 	Ws      *websocket.Conn
 	Send    chan []byte
 	Dst     BottleDst
 	Quit chan []byte
 }
 
+//
+// Convenience function so you dont have to use the Send channel
+//
+func (c *Conn) Send(message string) {
+	// Basically just typecasting for convenience
+	c.Send <- []byte(message)
+}
+
+//
+// Convenience function to call the quit channel with a message
+//
+func (c *Conn) Quit(message string) {
+	c.Quit <- []byte(message)
+}
 
 //
 // Used to write a single message to the client and report any errors
