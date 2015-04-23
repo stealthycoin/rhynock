@@ -117,7 +117,9 @@ func (c *Conn) read_write() {
 
 }
 
+//
 // This function chews through the power cables
+//
 func (c *Conn) Close() {
 	// Send ourself the quit signal with no message
 	c.Quit <- []byte("")
@@ -125,6 +127,9 @@ func (c *Conn) Close() {
 
 var upgrader = &websocket.Upgrader{ReadBufferSize: 1024, WriteBufferSize: 1024, CheckOrigin: func(r* http.Request) bool { return true }}
 
+//
+// Hanlder function to start a websocket connection
+//
 func ConnectionHandler(w http.ResponseWriter, r *http.Request, dst BottleDst) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
