@@ -112,7 +112,7 @@ func (c *Connection) read_write() {
 		case <- quit:
 			// Quit signal was invoked by our Close function
 			// The bottle destination wants this connection closed
-			c.write(websocket.CloseMessage. []byte{})
+			c.write(websocket.CloseMessage, []byte{})
 			return
 		}
 	}
