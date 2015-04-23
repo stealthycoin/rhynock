@@ -186,5 +186,5 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request, dst BottleDst) {
 		dst.ConnectionClosed(c)
 	}()
 
-	<- c.Wait
+	<- c.wait
 }
