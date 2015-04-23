@@ -40,8 +40,12 @@ func main() {
 	}
 
 	// Register the route to rhynock handler function and pass in our BottleDst
-	http.HandleFunc("/", func (w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/socket/", func (w http.ResponseWriter, r *http.Request) {
 		rhynock.ConnectionHandler(w, r, router)
+	})
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "index.html")
 	})
 
 	// Start router listening routine
