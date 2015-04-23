@@ -28,7 +28,7 @@ type Conn struct {
 //
 // Convenience function so you dont have to use the Send channel
 //
-func (c *Conn) Send(message string) {
+func (c *Conn) SendMsg(message string) {
 	// Basically just typecasting for convenience
 	c.Send <- []byte(message)
 }
