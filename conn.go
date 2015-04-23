@@ -7,6 +7,15 @@ import (
 	"log"
 )
 
+// Some defaults for pinging
+// Needs to be settable from outside
+const (
+	writeWait = 10 * time.Second
+	pongWait = 60 * time.Second
+	pingPeriod = (pongWait * 9) / 10
+	maxMessageSize = 512
+)
+
 // Conn encapsulates our websocket
 type Conn struct {
 	// Exported
@@ -16,15 +25,6 @@ type Conn struct {
 	Quit chan []byte
 }
 
-
-// Some defaults for pinging
-// Needs to be settable from outside
-const (
-	writeWait = 10 * time.Second
-	pongWait = 60 * time.Second
-	pingPeriod = (pongWait * 9) / 10
-	maxMessageSize = 512
-)
 
 //
 // Used to write a single message to the client and report any errors
