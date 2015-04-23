@@ -138,7 +138,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request, dst BottleDst) {
 		Send: make(chan []byte, 256),
 		Ws: ws,
 		Dst: dst,
-		quit: make(chan bool)
+		quit: make(chan bool),
 	}
 
 	dst.ConnectionOpened(c)
