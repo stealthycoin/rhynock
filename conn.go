@@ -9,10 +9,13 @@ import (
 
 // Connection handles our websocket
 type Connection struct {
+	// Exported
 	Ws      *websocket.Conn
 	Send    chan []byte
-	Authed  chan bool
 	Dst     BottleDst
+
+	// Private
+	quit    chan bool
 }
 
 
@@ -105,10 +108,20 @@ func (c *Connection) read_write() {
 				// defer will close the socket which will kill the reader
 				return
 			}
+
+		case <- quit:
+			// Quit signal was invoked by our Close function
+			// The bottle destination wants this connection closed
+			c.write(websocket.CloseMessage. []byte{})
+			return
 		}
 	}
 
+}
 
+func (c *Connection) Close() {
+	// Send ourself the quit signal provided by a function
+	c.quit <- true
 }
 
 var upgrader = &websocket.Upgrader{ReadBufferSize: 1024, WriteBufferSize: 1024, CheckOrigin: func(r* http.Request) bool { return true }}
@@ -124,8 +137,8 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request, dst BottleDst) {
 	c := &Connection{
 		Send: make(chan []byte, 256),
 		Ws: ws,
-		Authed: make(chan bool),
 		Dst: dst,
+		quit: make(chan bool)
 	}
 
 	dst.ConnectionOpened(c)
