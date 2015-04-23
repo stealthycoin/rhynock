@@ -7,7 +7,7 @@ import (
 	"log"
 )
 
-// Conn handles our websocket
+// Conn encapsulates our websocket
 type Conn struct {
 	// Exported
 	Ws      *websocket.Conn
@@ -17,6 +17,8 @@ type Conn struct {
 }
 
 
+// Some defaults for pinging
+// Needs to be settable from outside
 const (
 	writeWait = 10 * time.Second
 	pongWait = 60 * time.Second
