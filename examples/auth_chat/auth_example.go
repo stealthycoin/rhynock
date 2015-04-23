@@ -22,7 +22,7 @@ type Profile struct {
 }
 
 type Router struct {
-	// Kind of sorta keep track of who is connected
+	// Do a decent job keeping track of who is logged in
 	connections map[*rhynock.Conn]*Profile
 
 	// Channel to recieve bottles through
