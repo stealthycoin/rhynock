@@ -30,7 +30,7 @@ func (r *Router) ConnectionOpened(c *rhynock.Conn) {
 	// and then upon authentication the connection is added to a map
 	// where the value points at some kind of profile object
 	// can all c.Close() upon failing to authenticate
-	c.Sender.SendMsg("Welcome to echochat. No names. No rules.")
+	c.SendMsg("Welcome to echochat. No names. No rules.")
 	r.connections[c] = true
 }
 
