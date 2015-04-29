@@ -26,6 +26,7 @@ type Conn struct {
 	Dst     BottleDst
 	Quit    chan []byte
 	wait    chan bool
+	valid   bool
 }
 
 
@@ -34,7 +35,11 @@ type Conn struct {
 //
 func (c *Conn) SendMsg(message string) {
 	// Basically just typecasting for convenience
-	c.Send <- []byte(message)
+	if c.valid {
+		c.Send <- []byte(message)
+	} else {
+		log.Println("rhynock.Conn.SendMsg: Socket closed.")
+	}
 }
 
 
@@ -42,7 +47,11 @@ func (c *Conn) SendMsg(message string) {
 // Convenience function to call the quit channel with a message
 //
 func (c *Conn) CloseMsg(message string) {
-	c.Quit <- []byte(message)
+	if c.valid {
+		c.Quit <- []byte(message)
+	} else {
+		log.Println("rhynock.Conn.CloseMsg: Socket already closed.")
+	}
 }
 
 
@@ -51,7 +60,11 @@ func (c *Conn) CloseMsg(message string) {
 //
 func (c *Conn) Close() {
 	// Send ourself the quit signal with no message
-	c.Quit <- []byte("")
+	if c.valid {
+		c.Quit <- []byte("")
+	} else {
+		log.Println("rhynock.Conn.Close: Socket already closed.")
+	}
 }
 
 
@@ -74,6 +87,7 @@ func (c *Conn) read_write() {
 	// Clean up Connection and Connection resources
 	defer func() {
 		ticker.Stop()
+		c.valid = false
 		close(c.Send)
 		close(c.Quit)
 		c.Ws.Close()
@@ -112,8 +126,10 @@ func (c *Conn) read_write() {
 			// Send to the destination for processing
 			c.Dst.GetBottleChan() <- bottle
 		}
-		// The reader has been terminated, alert the writer
-		c.Close()
+		// The reader has been terminated, alert the writer if needed
+		if c.valid {
+			c.Close()
+		}
 	}()
 
 	// Main writing loop
@@ -171,6 +187,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request, dst BottleDst) {
 		Ws: ws,
 		Dst: dst,
 		Quit: make(chan []byte),
+		valid: true,
 		wait: make(chan bool),
 	}
 
