@@ -6,5 +6,7 @@ Wrapper around gorilla/websocket
 A simple router struct which implements rhynock's BottleDst interface
 
 ```GetBottleChan() (chan *Bottle)
+
 	ConnectionClosed(*Conn)
+	
 	ConnectionOpened(*Conn)```
