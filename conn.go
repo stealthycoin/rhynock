@@ -3,6 +3,7 @@ package rhynock
 import (
 	"github.com/gorilla/websocket"
 	"net/http"
+	"strconv"
 	"time"
 	"sync"
 	"log"
@@ -11,11 +12,11 @@ import (
 
 // Some defaults for pinging
 // Needs to be settable from outside
-const (
+var (
 	writeWait = 10 * time.Second
 	pongWait = 60 * time.Second
-	pingPeriod = 20 * time.Second
-	maxMessageSize = 512
+	pingPeriod = (pongWait * 9) / 10
+	maxMessageSize int64 = 512
 )
 
 
@@ -33,6 +34,43 @@ type Conn struct {
 	lastping  int64
 	ping      int64
 	pinglock  sync.Mutex
+}
+
+
+//
+// Change global properties of rhynock
+//
+func SetProperty(key, value string) {
+	switch key {
+	case "writeWait":
+		val, err := time.ParseDuration(value)
+		if err == nil {
+			writeWait = val
+		} else {
+			log.Println(err)
+		}
+	case "pongWait":
+		val, err := time.ParseDuration(value)
+		if err == nil {
+			pongWait = val
+		} else {
+			log.Println(err)
+		}
+	case "pingPeriod":
+		val, err := time.ParseDuration(value)
+		if err == nil {
+			pingPeriod = val
+		} else {
+			log.Println(err)
+		}
+	case "maxMessageSize":
+		val, err := strconv.ParseInt(value, 10, 64)
+		if err == nil {
+			maxMessageSize = val
+		} else {
+			log.Println(err)
+		}
+	}
 }
 
 
