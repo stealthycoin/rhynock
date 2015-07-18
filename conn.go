@@ -31,6 +31,7 @@ type Conn struct {
 	valid     bool
 
 	// Ping Calculation
+	// TODO make sure pings pair off, right now really bad lagg would case ping ping pong to give a false ping value
 	lastping  int64
 	ping      int64
 	pinglock  sync.Mutex
