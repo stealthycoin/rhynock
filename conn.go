@@ -4,6 +4,7 @@ import (
 	"github.com/gorilla/websocket"
 	"net/http"
 	"time"
+	"sync"
 	"log"
 )
 
@@ -13,20 +14,25 @@ import (
 const (
 	writeWait = 10 * time.Second
 	pongWait = 60 * time.Second
-	pingPeriod = (pongWait * 9) / 10
+	pingPeriod = 20 * time.Second
 	maxMessageSize = 512
 )
 
 
 // Conn encapsulates our websocket
 type Conn struct {
-	// Exported so everything can be messed with from outside
-	Ws      *websocket.Conn
-	Send    chan []byte
-	Dst     BottleDst
-	Quit    chan []byte
-	wait    chan bool
-	valid   bool
+	// Exported actual webscoket so can be messed with from outside
+	Ws        *websocket.Conn
+	Send      chan []byte
+	Dst       BottleDst
+	Quit      chan []byte
+	wait      chan bool
+	valid     bool
+
+	// Ping Calculation
+	lastping  int64
+	ping      int64
+	pinglock  sync.Mutex
 }
 
 
@@ -69,6 +75,17 @@ func (c *Conn) Close() {
 
 
 //
+// Get the current ping of this connection
+//
+func (c *Conn) GetPing() int64 {
+	c.pinglock.Lock()
+	defer c.pinglock.Unlock()
+	return c.ping
+}
+
+
+
+//
 // Used to write a single message to the client and report any errors
 //
 func (c *Conn) write(t int, payload []byte) error {
@@ -100,6 +117,9 @@ func (c *Conn) read_write() {
 	c.Ws.SetPongHandler(func(string) error {
 		// Give each client pongWait seconds after the ping to respond
 		c.Ws.SetReadDeadline(time.Now().Add(pongWait))
+		c.pinglock.Lock()
+		c.ping = (time.Now().UnixNano() - c.lastping) / 2000000
+		c.pinglock.Unlock()
 		return nil
 	})
 
@@ -151,6 +171,9 @@ func (c *Conn) read_write() {
 			}
 
 		case <- ticker.C:
+			// Record timestamp of ping
+			c.lastping = time.Now().UnixNano()
+
 			// Ping ticker went off. We need to ping to check for connectivity.
 			if err := c.write(websocket.PingMessage, []byte{}); err != nil {
 				// We got an error pinging, return and call defer
@@ -184,11 +207,13 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request, dst BottleDst) {
 	// Create new connection object
 	c := &Conn{
 		Send: make(chan []byte, 256),
-		Ws: ws,
-		Dst: dst,
-		Quit: make(chan []byte),
-		valid: true,
-		wait: make(chan bool),
+		Ws:       ws,
+		Dst:      dst,
+		Quit:     make(chan []byte),
+		valid:    true,
+		wait:     make(chan bool),
+		lastping: 0,
+		ping:     0,
 	}
 
 	// Alert the destination that a new connection has opened
