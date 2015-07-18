@@ -39,6 +39,9 @@ type Conn struct {
 
 //
 // Change global properties of rhynock
+// Options are: writeWait, pongWait, pingPeriod, maxMessageSize
+// Value is a string that will be parsed into the correct type.
+// For writeWait, pongWait, and pingPeriod a duration string is expected, for maxMessageSize an int string.
 //
 func SetProperty(key, value string) {
 	switch key {
