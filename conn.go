@@ -27,7 +27,6 @@ type Conn struct {
 	Send      chan []byte
 	Dst       BottleDst
 	Quit      chan []byte
-	wait      chan bool
 	valid     bool
 
 	// Ping Calculation
@@ -147,10 +146,10 @@ func (c *Conn) read_write() {
 	defer func() {
 		ticker.Stop()
 		c.valid = false
+		c.Dst.ConnectionClosed(c)
 		close(c.Send)
 		close(c.Quit)
 		c.Ws.Close()
-		close(c.wait) // Unblocks the ConnectionHandler
 	}()
 
 	// Config websocket settings
@@ -248,12 +247,11 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request, dst BottleDst) {
 
 	// Create new connection object
 	c := &Conn{
-		Send: make(chan []byte, 256),
+		Send:     make(chan []byte, 256),
 		Ws:       ws,
 		Dst:      dst,
 		Quit:     make(chan []byte),
 		valid:    true,
-		wait:     make(chan bool),
 		lastping: 0,
 		ping:     0,
 	}
@@ -261,11 +259,40 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request, dst BottleDst) {
 	// Alert the destination that a new connection has opened
 	dst.ConnectionOpened(c)
 
-	// Make sure connections that are opened will get closed
-	defer func() {
-		dst.ConnectionClosed(c)
-	}()
-
 	// Start read write loop blocking
 	c.read_write()
+}
+
+
+//
+// Wrap a websocket in a rhynock handler
+//
+func WrapWebsocket(ws *websocket.Conn, dst BottleDst)  *Conn {
+	// Create new connection object
+	c := &Conn{
+		Send:     make(chan []byte, 256),
+		Ws:       ws,
+		Dst:      dst,
+		Quit:     make(chan []byte),
+		valid:    true,
+		lastping: 0,
+		ping:     0,
+	}
+
+	// Alert the destination that a new connection has opened
+	dst.ConnectionOpened(c)
+
+	// Start read write loop blocking
+	go c.read_write()
+
+	return c
+}
+
+//
+// Wraps a websocket in a rhynock.conn
+//
+func (c *Conn) Reroute(dst BottleDst) {
+	c.Dst.ConnectionClosed(c)
+	c.Dst = dst
+	c.Dst.ConnectionOpened(c)
 }
