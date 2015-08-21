@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"math"
 	"sync"
 	"log"
 )
@@ -16,7 +17,7 @@ var (
 	writeWait = 10 * time.Second
 	pongWait = 60 * time.Second
 	pingPeriod = (pongWait * 9) / 10
-	maxMessageSize int64 = 512
+	maxMessageSize int64 = math.MaxInt64
 )
 
 
