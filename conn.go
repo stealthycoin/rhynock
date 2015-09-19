@@ -39,6 +39,21 @@ type Conn struct {
 
 
 //
+// Get remote address
+//
+func (c *Conn) RemoteAddr() string {
+	return c.Ws.RemoteAddr()
+}
+
+
+//
+// Get local address
+//
+func (c *Conn) LocalAddr() string {
+	return c.Ws.LocalAddr()
+}
+
+//
 // Change global properties of rhynock
 // Options are: writeWait, pongWait, pingPeriod, maxMessageSize
 // Value is a string that will be parsed into the correct type.
