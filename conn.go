@@ -42,7 +42,7 @@ type Conn struct {
 // Get remote address
 //
 func (c *Conn) RemoteAddr() string {
-	return c.Ws.RemoteAddr()
+	return c.Ws.RemoteAddr().String()
 }
 
 
@@ -50,7 +50,7 @@ func (c *Conn) RemoteAddr() string {
 // Get local address
 //
 func (c *Conn) LocalAddr() string {
-	return c.Ws.LocalAddr()
+	return c.Ws.LocalAddr().String()
 }
 
 //
