@@ -229,9 +229,9 @@ func (c *Conn) read_write() {
 
 		case <- ticker.C:
 			// Record timestamp of ping
-			c.pingLock.Lock()
+			c.pinglock.Lock()
 			c.lastping = time.Now().UnixNano()
-			c.pingLock.Unlock()
+			c.pinglock.Unlock()
 
 			// Ping ticker went off. We need to ping to check for connectivity.
 			if err := c.write(websocket.PingMessage, []byte{}); err != nil {
